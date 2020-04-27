@@ -1,0 +1,44 @@
+
+html{
+  font-size: 26.66667vw;
+}
+
+body {
+  font-size: 30px;
+  background-color: #f8f8f8;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  font-family: Avenir, Helvetica, PingFangSC-Regular, PingFangSC-Semibold;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #333;
+  margin: 33px 20px 4 20px;
+}
+
+.header {
+  width: 100%;
+  height: 82px;/*32+50px;*/
+}
+.header .icon {
+  width: 32px;
+  height: 32px;
+}
+
+h1 {
+  display: block;
+  margin: 40px auto; 
+  width: 100%;
+  height: 34px;
+}
+.h1_title_bold {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: bold;
+}
+
+.span__blue {
+  color: #1E9DF5;
+}

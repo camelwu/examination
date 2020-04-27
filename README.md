@@ -1,5 +1,10 @@
 # exam
-
+组件：
+header
+title
+content
+select
+footer
 ## Project setup
 ```
 yarn install
