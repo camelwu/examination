@@ -12,7 +12,7 @@ export default new Router({
     Explain,         //解析 1～n
     Result,          //结果*/
     {
-      path: '*',
+      path: '/',
       name: 'exam',
       component: Exam
     },

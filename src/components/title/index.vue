@@ -1,9 +1,8 @@
 <template>
-  <div>
-    <h1>
-    <span slot="num" class="span_num_blue">{{ $route.params.num }}</span>
+  <div class="h1">
+    <span slot="num" class="span__blue">{{ num }}</span>
+    <span slot="num" class="h1_title_total">/{{ total }}</span>
     <span slot="title">{{title}}</span>
-    </h1>
   </div>
 </template>
 
@@ -15,21 +14,9 @@ export default {
   },
   name: "Title",
   props: {
+    num: Number,
+    total: Number,
     title: String
   },
-  methods: {
-    onClickLeft() {
-      this.$router.go(-1);
-    },
-    onClickRight() {
-      Toast("按钮");
-    }
-  }
 };
 </script>
-
-<style scoped>
-.span_num_blue {
-  color: #1E9DF5;
-}
-</style>

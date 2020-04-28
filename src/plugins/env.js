@@ -3,12 +3,12 @@
 * routerMode: 路由模式
 */
  
-let baseUrl = '';
+let baseUrl = 'http://62.234.101.207:8090/jeecg-boot/';
 let routerMode = 'history';
 if (process.env.NODE_ENV == 'development') {  
-    baseUrl = 'http://localhost:3000';
+    baseUrl = 'http://62.234.101.207:8090/jeecg-boot/';
 }else{  
-    baseUrl = 'http://xxxx这里是线上地址xxx';
+    baseUrl = 'http://62.234.101.207:8090/jeecg-boot/';
 }
  
 export { baseUrl, routerMode }

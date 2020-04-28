@@ -13,13 +13,13 @@
 export default {
   data() {
     return {
-      imgUrl: require("@/assets/arrow.png")
+      imgUrl: require("@/assets/left.png")
     };
   },
   name: "Header",
   methods: {
     onClickLeft() {
-      this.$router.go(-1);
+      console.log('back to app!');
     }
   }
 };

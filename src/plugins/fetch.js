@@ -1,26 +1,26 @@
 import { baseUrl } from './env'
-export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
+export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
 	type = type.toUpperCase();
 	url = baseUrl + url;
- 
-        // 此处规定get请求的参数使用时放在data中，如同post请求
+
+	// 此处规定get请求的参数使用时放在data中，如同post请求
 	if (type == 'GET') {
-		let dataStr = ''; 
+		let dataStr = '';
 		Object.keys(data).forEach(key => {
 			dataStr += key + '=' + data[key] + '&';
 		})
- 
+
 		if (dataStr !== '') {
 			dataStr = dataStr.substr(0, dataStr.lastIndexOf('&'));
 			url = url + '?' + dataStr;
 		}
 	}
- 
-        // 对于支持fetch方法的浏览器，处理如下：
+
+	// 对于支持fetch方法的浏览器，处理如下：X-Access-Token
 	if (window.fetch && method == 'fetch') {
 		let requestConfig = {
-                        // fetch默认不会带cookie，需要添加配置项credentials允许携带cookie
-			credentials: 'include', 
+			// fetch默认不会带cookie，需要添加配置项credentials允许携带cookie
+			credentials: 'include',
 			method: type,
 			headers: {
 				'Accept': 'application/json',
@@ -29,13 +29,13 @@ export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
 			mode: "cors", // 以CORS的形式跨域
 			cache: "force-cache"
 		}
- 
+
 		if (type == 'POST') {
 			Object.defineProperty(requestConfig, 'body', {
 				value: JSON.stringify(data)
 			})
 		}
-		
+
 		try {
 			const response = await fetch(url, requestConfig);
 			const responseJson = await response.json();
@@ -51,16 +51,16 @@ export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
 			} else {
 				// requestObj = new ActiveXObject; // 兼容IE
 			}
- 
+
 			let sendData = '';
 			if (type == 'POST') {
 				sendData = JSON.stringify(data);
 			}
- 
+
 			requestObj.open(type, url, true);
 			requestObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			requestObj.send(sendData);
- 
+
 			requestObj.onreadystatechange = () => {
 				if (requestObj.readyState == 4) {
 					if (requestObj.status == 200) {
