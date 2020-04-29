@@ -1,8 +1,8 @@
 <template>
   <div class="h1">
-    <span slot="num" class="span__blue">{{ num }}</span>
-    <span slot="num" class="h1_title_total">/{{ total }}</span>
-    <span slot="title">{{title}}</span>
+    <span v-if="num" slot="num" class="span__blue">{{ num }}</span>
+    <span v-if="total" slot="total" class="h1_title_total">/{{ total }}</span>
+    <span >{{title}}</span>
   </div>
 </template>
 
