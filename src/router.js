@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Exam from './views/exam';
 import Result from './views/result';
-import Explain from './views/explain';
+// import Explain from './views/explain';
 
 Vue.use(Router);
 export default new Router({
@@ -13,22 +13,16 @@ export default new Router({
     Result,          //结果*/
     {
       path: '/',
-      name: 'exam',
-      component: Exam
+      redirect: '/exam/1'
     },
     {
-      path: '/exam/:num',
+      path: '/:mode/:num',
       name: 'exam',
       component: Exam
-    },
-    {
-      path: '/explain',
-      name: 'Explain',
-      component: Explain
     },
     {
       path: '/result',
-      name: 'Result',
+      name: 'result',
       component: Result
     }
   ]

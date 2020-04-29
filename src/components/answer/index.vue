@@ -5,6 +5,11 @@
         <span class="pd-goods-name">{{good.title}}</span>
       </li>
     </ul>
+    <textarea class="inputs" placeholder="请输入答案"></textarea>
+    <div class="uploads">
+      <img :src="imgUrl">
+      <p>上传答案</p>
+    </div>
   </div>
 </template>
 
@@ -19,7 +24,8 @@ export default {
       sel: [],
       active: 2,
       activeSingle: 0,
-      doubleList:[]
+      doubleList:[],
+      imgUrl: require("@/assets/left.png")
     };
   },
   name: "answerlist",

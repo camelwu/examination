@@ -11,7 +11,7 @@
       <section v-html="data.question">{{ data.question }}</section>
     </div>
     <Answer typeTitle='single' :goods="dataTitle" @parentAnswer='parentAnswer' />
-    <Footer :num="num" :total="total" path="exam" />
+    <Footer :num="this.num" :total="total" :path="mode" />
   </div>
 </template>
 
@@ -21,24 +21,41 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Title from "@/components/title";
 import Answer from "@/components/answer";
-// import fetch from "@/plugins/fetch";
+import fetch from "@/plugins/fetch";
 
 export default {
   data() {
     return {
       // path: 'exam',
       num: 0,
-      total: 18,
+      total: 0,
       sectionId: 0,
       loading: false,
       error: null,
       data: null,
       dataTitle: [
         { id: 1, title: "A.所有的直线都有斜率", isdisable: false },
-        { id: 2, title: "B.倾斜角α的范围与三角形的内角范围一致",isdisable: false },
-        { id: 3, title: "C.所有的直线都有倾斜角",isdisable: false },
-        { id: 4, title: "D.直线的斜率k与倾斜角α满足关系式k·Cotα＝1",isdisable: false }
-      ]
+        {
+          id: 2,
+          title: "B.倾斜角α的范围与三角形的内角范围一致",
+          isdisable: false
+        },
+        { id: 3, title: "C.所有的直线都有倾斜角", isdisable: false },
+        {
+          id: 4,
+          title: "D.直线的斜率k与倾斜角α满足关系式k·Cotα＝1",
+          isdisable: false
+        }
+      ],
+      userAnswer: {
+        answer: [],
+        courseId: "",
+        imgUrl: "",
+        paperId: "",
+        questionId: "",
+        sectionId: ""
+      },
+      mode: 'exam'
     };
   },
   name: "exam",
@@ -59,54 +76,85 @@ export default {
   },
   watch: {
     // 如果路由有变化，会再次执行该方法
-    $route: "fetchData"
+    // $route: "fetchData"
+    $route(to,from){
+      this.mode = to.name;
+      if(to.params.num !== from.params.num){
+        this.num = to.params.num;
+        this.fetchData();
+      }
+      // console.log(to.path, from);
+    }
   },
   methods: {
     parentAnswer(title) {
-     const list = title || []
-     if(list.length === 1) { //单选
-      this.singlt(list)
-     } else { //多选
-        this.double(list)
-     }
+      const list = title || [];
+      if (list.length === 1) {
+        //单选
+        this.singlt(list);
+      } else {
+        //多选
+        this.double(list);
+      }
     },
     singlt(list) {
-       this.dataTitle.map((item,index)=>{
-        if(item.id === list[0].id) {
-          this.dataTitle[index].isdisable = true
+      this.dataTitle.map((item, index) => {
+        if (item.id === list[0].id) {
+          this.dataTitle[index].isdisable = true;
         } else {
-          this.dataTitle[index].isdisable = false
+          this.dataTitle[index].isdisable = false;
         }
-      })
+      });
     },
     double(list) {
-      const doubleId = []
-       list.map((item) =>{
-         if(doubleId.id !== item.id) {
-           doubleId.push(item.id)
-         }
-       })
-       console.log('doubleId', doubleId)
+      const doubleId = [];
+      list.map(item => {
+        if (doubleId.id !== item.id) {
+          doubleId.push(item.id);
+        }
+      });
+      console.log("doubleId", doubleId);
     },
     fetchData() {
-      this.error = this.post = null;
+      this.error = this.data = null;
       this.loading = true;
-      // fetch('http://localhost:3000/category/searchcategory?menuName='+this.menuName, {
-      //   method: 'get'
-      // }).then(response => response.json()).then(data => {
-      //     this.data = data.data;
-      //     // console.log(this.category)
-      // })
-
-      // fetch(this.$route.params.num, (err, post) => {
-      //   this.loading = false
-      //   if (err) {
-      //     this.error = err.toString()
-      //   } else {
-      //     this.post = post
-      //   }
-      // })
+      fetch("api/paper/getPaperInfo", {
+        num: this.num || 1,
+        sectionId: ""
+      }).then(res => {
+        if (res.code == "0" && res.success) {
+          let result = res.result;
+          this.data = result.questionVo;
+          console.log(this.data);
+        } else {
+          alert(res.message);
+        }
+      });
     }
   }
 };
+/*res = {
+        code: 0,
+        message: "",
+        result: {
+          answer: "",
+          count: 0,
+          curNum: 0,
+          imgUrl: "",
+          paperId: "",
+          questionVo: {
+            actType: "",
+            actTypeName: "",
+            answer: "",
+            answerKey: "",
+            baseType: "",
+            context: "",
+            id: "",
+            question: "",
+            questionItem: ""
+          }
+        },
+        success: true,
+        timestamp: 0
+      };*/
 </script>
