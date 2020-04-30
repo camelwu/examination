@@ -2,16 +2,30 @@
   <div class="container">
     <Header />
     <div v-if="loading" class="loading">Loading...</div>
-
     <div v-if="error" class="error">{{ error }}</div>
-
     <div v-if="data" class="question">
-      <article v-html="data.context">{{ data.context }}</article>
-      <Title :num="num" :total="total" :title="total +'单选题'" />
-      <section v-html="data.question">{{ data.question }}</section>
+      <article v-html="data.questionVo.context">{{ data.questionVo.context }}</article>
+      <Title 
+      :num="num" 
+      :total="total" 
+      :title="data.questionVo.actTypeName" />
+      <section v-html="data.questionVo.question">{{ data.questionVo.question }}</section>
     </div>
-    <Answer typeTitle='single' :goods="dataTitle" @parentAnswer='parentAnswer' />
-    <Footer :num="this.num" :total="total" :path="mode" />
+    <Answer
+      :mode="mode"
+      :typeTitle="data.questionVo.actType"
+      :goods="data.questionVo.questionItem"
+      @parentAnswer="parentAnswer"
+      :answer="data.questionVo.answer" />
+    <div v-show="mode=='explain'">
+      <Title title="试题解析" />
+      <Paper
+        :type="data.questionVo.actType" 
+        :answer="data.questionVo.answer" 
+        :reply="userAnswer.answer" 
+        :answerKey="data.questionVo.answerKey" />
+    </div>
+    <Footer :num="num" :total="total" :path="mode" />
   </div>
 </template>
 
@@ -21,6 +35,7 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Title from "@/components/title";
 import Answer from "@/components/answer";
+import Paper from "@/components/paper";
 import fetch from "@/plugins/fetch";
 
 export default {
@@ -47,7 +62,7 @@ export default {
           isdisable: false
         }
       ],
-      userAnswer: {
+      userAnswer: {// 答题
         answer: [],
         courseId: "",
         imgUrl: "",
@@ -55,7 +70,7 @@ export default {
         questionId: "",
         sectionId: ""
       },
-      mode: 'exam'
+      mode: "exam"
     };
   },
   name: "exam",
@@ -64,22 +79,20 @@ export default {
     Footer,
     Title,
     // Question,
-    // Paper,
+    Paper,
     Answer
   },
   created() {
     // 组件创建完后获取数据，
-    this.num = this.$route.params.num || 1;
-    console.log(this.num);
-    console.log(this.$route);
+    this.num = parseInt(this.$route.params.num.toString()) || 1;
     this.fetchData();
   },
   watch: {
     // 如果路由有变化，会再次执行该方法
     // $route: "fetchData"
-    $route(to,from){
+    $route(to, from) {
       this.mode = to.name;
-      if(to.params.num !== from.params.num){
+      if (to.params.num !== from.params.num) {
         this.num = to.params.num;
         this.fetchData();
       }
@@ -122,12 +135,34 @@ export default {
         num: this.num || 1,
         sectionId: ""
       }).then(res => {
+        this.loading = false;
         if (res.code == "0" && res.success) {
           let result = res.result;
-          this.data = result.questionVo;
+          this.data = result;
+          this.total = result.count;
           console.log(this.data);
         } else {
-          alert(res.message);
+          // alert(res.message);
+          let result = {
+            answer: "",
+            count: 0,
+            curNum: 0,
+            imgUrl: "",
+            paperId: "",
+            questionVo: {
+              actType: "",
+              actTypeName: "",
+              answer: "",
+              answerKey: "",
+              baseType: "",
+              context: `In winter the weather in England is often very cold. In spring and autumn there are sometimes cold days, but there are also days when the weather is warm. The weather is usually warm in summer. It is sometimes hot in summer, but it is not often very hot. There are often cool days in summer.When the temperature is over 27℃, English people say it is hot. When the temperature is about 21℃, they say it is warm.In the north of Europe it is very cold in winter. In the south of Europe the summer is often very hot. In the south of Spain(1) and in North Africa(2) the summer is always hot.Water freezes(3) at 0℃. When water freezes, it changes from a liquid(4) into ice. Water boils(5) at 100℃. When water boils, it changes from a liquid into steam(6).Notes: (1)Spain/speIn/n. 西班牙(2)Africa/'frIk/n.非洲 (3)freeze/fri：z/v.结冰(4)liquid/'lIkwId/n.液体 (5)boil/bIl/v.沸腾;(水)开 (6)steam/sti：m/ n.蒸汽 tionVo`,
+              id: "",
+              question: "1.What is the weather like in summer in England?",
+              questionItem: ""
+            }
+          };
+          this.data = result;
+          this.total = result.count;
         }
       });
     }

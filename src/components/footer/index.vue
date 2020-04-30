@@ -1,7 +1,7 @@
 <template>
   <footer>
     <router-link v-if="path==='exam'" :to="{path:'/explain/'+num}" class="links">
-      <div class="btn_red">{{num}}解析</div>
+      <div class="btn_red">解析</div>
     </router-link>
     <router-link v-if="path==='exam'&&num>1" v-show="num>1" :to="{path:'/exam/'+(num-1)}" class="links">
       <div class="btn_gray">上一题</div>

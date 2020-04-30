@@ -4,11 +4,12 @@ import router from './router'
 import store from './store'
 import 'normalize.css/normalize.css'
 import './assets/global.css'
+import 'lib-flexible/flexible'
 
 Vue.config.productionTip = false
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')

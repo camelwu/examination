@@ -1,13 +1,13 @@
 <template>
-  <div class="answer-list">
-    <ul class="answer">
+  <div class="answer">
+    <ul class="answer-list">
       <li :class="good.isdisable ? 'active' : ''" v-for="good in goods" :key="good.id+'col'" @click="seleted(good)">
         <span class="pd-goods-name">{{good.title}}</span>
       </li>
     </ul>
     <textarea class="inputs" placeholder="请输入答案"></textarea>
     <div class="uploads">
-      <img :src="imgUrl">
+      <img class="camera" :src="imgUrl">
       <p>上传答案</p>
     </div>
   </div>
@@ -25,7 +25,7 @@ export default {
       active: 2,
       activeSingle: 0,
       doubleList:[],
-      imgUrl: require("@/assets/left.png")
+      imgUrl: require("@/assets/camera.png")
     };
   },
   name: "answerlist",
