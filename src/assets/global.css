@@ -98,10 +98,10 @@ view {
     align-items: center;
     width: 100%;
     height: 82px;
-    margin-top: 35px;
-    margin-bottom: 0.08px;
+    margin-top: 20px;
+    margin-bottom: 28px;
     background: rgba(255, 255, 255, 1);
-    border: 1px solid rgba(229, 229, 229, 1);
+    border: 1PX solid rgba(229, 229, 229, 1);
     border-radius: 5px;
 }
 
@@ -184,7 +184,7 @@ view {
 .answer-list li.active {
     color: #1E9DF5;
     background: rgba(232, 245, 254, 1);
-    border: 1px solid rgba(30, 157, 245, 1);
+    border: 1PX solid rgba(30, 157, 245, 1);
     /*no*/
 }
 
@@ -195,7 +195,7 @@ view {
     box-sizing: border-box;
     padding: 40px;
     background: rgba(245, 245, 245, 1);
-    border: 1px solid rgba(229, 229, 229, 1);
+    border: 1PX solid rgba(229, 229, 229, 1);
     /*no*/
     border-radius: 10px;
 }
@@ -204,7 +204,7 @@ view {
     width: 250px;
     height: 250px;
     background: rgba(245, 245, 245, 1);
-    border: 1px solid rgba(229, 229, 229, 1);
+    border: 1PX solid rgba(229, 229, 229, 1);
     /*no*/
     border-radius: 10px;
     text-align: center;
@@ -239,7 +239,7 @@ footer .liner {
     width: 100%;
     height: 1px;
     background: rgba(0, 0, 0, 1);
-    border: 1px solid rgba(229, 229, 229, 1);
+    border: 1PX solid rgba(229, 229, 229, 1);
     /*no*/
 }
 
