@@ -46,7 +46,6 @@ export default {
     }
   },
   created() {
-    console.log("footer", this.$router);
   }
 };
 </script>

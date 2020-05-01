@@ -55,13 +55,13 @@ setupWebViewJavascriptBridge((bridge) => {
 
 export default {
     // js调APP方法 （参数分别为:app提供的方法名  传给app的数据  回调）
-    callNative(name, data, callback) {
+    callHandler(name, data, callback) {
         setupWebViewJavascriptBridge((bridge) => {
             bridge.callHandler(name, data, callback);
         });
     },
     // APP调js方法 （参数分别为:js提供的方法名  回调）
-    BcNativeCallbackJs(name, callback) {
+    registerHandler(name, callback) {
         setupWebViewJavascriptBridge((bridge) => {
             bridge.registerHandler(name, (data, responseCallback) => {
                 callback(data, responseCallback);

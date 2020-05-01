@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <Header />
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
     <div v-if="data" class="question">
@@ -12,12 +11,16 @@
       <section v-html="data.questionVo.question">{{ data.questionVo.question }}</section>
     </div>
     <Answer
+      v-if="data"
       :mode="mode"
       :typeTitle="data.questionVo.actType"
-      :goods="data.questionVo.questionItem"
+      :items="data.questionVo.questionItem"
+      :answer="data.questionVo.answer"
       @parentAnswer="parentAnswer"
-      :answer="data.questionVo.answer" />
-    <div v-show="mode=='explain'">
+      @clickUploadImg="clickUploadImg" />
+    <div
+      v-if="data"
+      v-show="mode=='explain'">
       <Title title="试题解析" />
       <Paper
         :type="data.questionVo.actType" 
@@ -32,7 +35,7 @@
 <script>
 // @ is an alias to /src
 import Footer from "@/components/footer";
-import Header from "@/components/header";
+// import Header from "@/components/header";
 import Title from "@/components/title";
 import Answer from "@/components/answer";
 import Paper from "@/components/paper";
@@ -62,7 +65,8 @@ export default {
           isdisable: false
         }
       ],
-      userAnswer: {// 答题
+      userAnswer: {
+        // 答题
         answer: [],
         courseId: "",
         imgUrl: "",
@@ -75,7 +79,7 @@ export default {
   },
   name: "exam",
   components: {
-    Header,
+    // Header,
     Footer,
     Title,
     // Question,
@@ -83,7 +87,10 @@ export default {
     Answer
   },
   created() {
-    // 组件创建完后获取数据，
+    console.log("bridge:", this.$bridge);
+    // 组件创建完后获取数据，先获取token等
+    this.getMsg();this.getAppData();
+
     this.num = parseInt(this.$route.params.num.toString()) || 1;
     this.fetchData();
   },
@@ -100,6 +107,41 @@ export default {
     }
   },
   methods: {
+    // js调app
+    getMsg() {
+      let msg = { action: "getMsg" };
+      this.$jsbridge.callNative("dataFromApp", msg, (res) => {
+        alert("jsbridge获取app响应数据:" + res);
+        // this.test = res;
+      })
+      this.$bridge.callHandler("dataFromApp", msg, (res) => {
+        alert("bridge获取app响应数据:" + res);
+        this.test = res;
+      });
+    },
+    // app调js
+    getAppData() {
+      this.$bridge.registerHandler("dataToJs", (data, responseCallback) => {
+        alert("app主动调用js方法，传入数据:" + data);
+        responseCallback(data);
+      });
+    },
+    clickUploadImg() {
+      let that = this;
+      WebViewJavascriptBridge.callHandler(
+        "uploadImgAlbumSelect",
+        { name: "选择图片" },
+        function(data) {
+          that.getAppUpImage(data);
+        }
+      );
+    },
+    getAppUpImage(url) {
+      let data = JSON.parse(url);
+      //this.$vux.alert.show({title:'提示',content:data});
+      this.imageData.push(data.path);
+      this.imageName.push(data.name);
+    },
     parentAnswer(title) {
       const list = title || [];
       if (list.length === 1) {
@@ -142,54 +184,30 @@ export default {
           this.total = result.count;
           console.log(this.data);
         } else {
-          // alert(res.message);
-          let result = {
-            answer: "",
-            count: 0,
-            curNum: 0,
-            imgUrl: "",
-            paperId: "",
-            questionVo: {
-              actType: "",
-              actTypeName: "",
-              answer: "",
-              answerKey: "",
-              baseType: "",
-              context: `In winter the weather in England is often very cold. In spring and autumn there are sometimes cold days, but there are also days when the weather is warm. The weather is usually warm in summer. It is sometimes hot in summer, but it is not often very hot. There are often cool days in summer.When the temperature is over 27℃, English people say it is hot. When the temperature is about 21℃, they say it is warm.In the north of Europe it is very cold in winter. In the south of Europe the summer is often very hot. In the south of Spain(1) and in North Africa(2) the summer is always hot.Water freezes(3) at 0℃. When water freezes, it changes from a liquid(4) into ice. Water boils(5) at 100℃. When water boils, it changes from a liquid into steam(6).Notes: (1)Spain/speIn/n. 西班牙(2)Africa/'frIk/n.非洲 (3)freeze/fri：z/v.结冰(4)liquid/'lIkwId/n.液体 (5)boil/bIl/v.沸腾;(水)开 (6)steam/sti：m/ n.蒸汽 tionVo`,
-              id: "",
-              question: "1.What is the weather like in summer in England?",
-              questionItem: ""
-            }
-          };
-          this.data = result;
-          this.total = result.count;
+          alert(res.message);
+          // let result = {
+          //   answer: "",
+          //   count: 0,
+          //   curNum: 0,
+          //   imgUrl: "",
+          //   paperId: "",
+          //   questionVo: {
+          //     actType: "",
+          //     actTypeName: "",
+          //     answer: "",
+          //     answerKey: "",
+          //     baseType: "",
+          //     context: `In winter the weather in England is often very cold. In spring and autumn there are sometimes cold days, but there are also days when the weather is warm. The weather is usually warm in summer. It is sometimes hot in summer, but it is not often very hot. There are often cool days in summer.When the temperature is over 27℃, English people say it is hot. When the temperature is about 21℃, they say it is warm.In the north of Europe it is very cold in winter. In the south of Europe the summer is often very hot. In the south of Spain(1) and in North Africa(2) the summer is always hot.Water freezes(3) at 0℃. When water freezes, it changes from a liquid(4) into ice. Water boils(5) at 100℃. When water boils, it changes from a liquid into steam(6).Notes: (1)Spain/speIn/n. 西班牙(2)Africa/'frIk/n.非洲 (3)freeze/fri：z/v.结冰(4)liquid/'lIkwId/n.液体 (5)boil/bIl/v.沸腾;(水)开 (6)steam/sti：m/ n.蒸汽 tionVo`,
+          //     id: "",
+          //     question: "1.What is the weather like in summer in England?",
+          //     questionItem: ""
+          //   }
+          // };
+          // this.data = result;
+          // this.total = result.count;
         }
       });
     }
   }
 };
-/*res = {
-        code: 0,
-        message: "",
-        result: {
-          answer: "",
-          count: 0,
-          curNum: 0,
-          imgUrl: "",
-          paperId: "",
-          questionVo: {
-            actType: "",
-            actTypeName: "",
-            answer: "",
-            answerKey: "",
-            baseType: "",
-            context: "",
-            id: "",
-            question: "",
-            questionItem: ""
-          }
-        },
-        success: true,
-        timestamp: 0
-      };*/
 </script>

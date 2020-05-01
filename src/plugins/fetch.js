@@ -24,7 +24,8 @@ export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
             method: type,
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAxMjQ1OTQzIiwiZXhwIjoxNTg4OTI4ODMwfQ.QzceqxZ3vp2ORsmimgJ8bVmitK1j3w5dq6InEePvxBE'
             },
             mode: "cors", // 以CORS的形式跨域
             cache: "force-cache"

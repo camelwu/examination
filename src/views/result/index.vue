@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <Header />
     <Title title="答题卡" />
     <div class="result-types">
       <li class="result-item" v-for="(type, index) in types" :key="'type'+index">
@@ -22,7 +21,7 @@
 <script>
 // @ is an alias to /src
 import Footer from "@/components/footer";
-import Header from "@/components/header";
+// import Header from "@/components/header";
 import Title from "@/components/title";
 import fetch from "@/plugins/fetch";
 export default {
@@ -57,7 +56,7 @@ export default {
   },
   name: "result",
   components: {
-    Header,
+    // Header,
     Footer,
     Title
   },

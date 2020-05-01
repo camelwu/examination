@@ -1,12 +1,12 @@
 <template>
   <div class="answer">
     <ul class="answer-list">
-      <li :class="good.isdisable ? 'active' : ''" v-for="good in goods" :key="good.id+'col'" @click="seleted(good)">
-        <span class="pd-goods-name">{{good.title}}</span>
+      <li :class="item.isdisable ? 'active' : ''" v-for="item in items" :key="item.id+'col'" @click="seleted(item)">
+        <span>{{item.title}}</span>
       </li>
     </ul>
     <textarea class="inputs" placeholder="请输入答案"></textarea>
-    <div class="uploads">
+    <div class="uploads" @click="upload">
       <img class="camera" :src="imgUrl">
       <p>上传答案</p>
     </div>
@@ -16,7 +16,7 @@
 <script>
 export default {
   props: {
-    goods: Array,
+    items: Array,
     typeTitle: String
   },
   data() {
@@ -30,17 +30,20 @@ export default {
   },
   name: "answerlist",
   methods: {
-    seleted(good) {
+    seleted(item) {
       if(this.typeTitle && this.typeTitle === 'single'){
-        this.$emit('parentAnswer', [good])
+        this.$emit('parentAnswer', [item])
       }
       if(this.typeTitle && this.typeTitle === 'double') {
-        const doubleList = this.doubleChange(good)
+        const doubleList = this.doubleChange(item)
         this.$emit('parentAnswer', doubleList)
       }
     },
-    doubleChange(good) {
-      this.doubleList.push(good)
+    doubleChange(item) {
+      this.doubleList.push(item)
+    },
+    upload(){
+      this.$emit('clickUploadImg')
     }
   },
   created() {
@@ -48,11 +51,3 @@ export default {
   }
 };
 </script>
-<style>
-.isActive {
-  color: red;
-}
-.noActive {
-  color:#ccc;
-}
-</style>
