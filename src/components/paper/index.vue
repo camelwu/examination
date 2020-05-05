@@ -1,6 +1,6 @@
 <template>
   <div class="explain">
-    <div v-show="type==='select'" class="seletor">
+    <div v-show="parseInt(type)<4" class="seletor">
       <ul>
         <li>正确答案</li>
         <li>我的答案</li>
@@ -26,10 +26,11 @@ export default {
   name: "paper",
   methods: {
     formatAnswer(s) {
-      if("string" == typeof s){console.log(JSON.parse(this.answer).join(', '));
-        return JSON.parse(this.answer).join(', ');
-      }else{
-        return s.join(', ');
+      if ("string" == typeof s) {
+        console.log(JSON.parse(this.answer).join(", "));
+        return JSON.parse(this.answer).join(", ");
+      } else {
+        return s.join(", ");
       }
     }
   }
