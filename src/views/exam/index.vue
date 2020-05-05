@@ -42,7 +42,6 @@
 <script>
 // @ is an alias to /src
 import Footer from "@/components/footer";
-// import Header from "@/components/header";
 import Title from "@/components/title";
 import Answer from "@/components/answer";
 import Paper from "@/components/paper";
@@ -65,19 +64,17 @@ export default {
   },
   name: "exam",
   components: {
-    // Header,
     Footer,
     Title,
-    // Question,
     Paper,
     Answer
   },
   created() {
-    // 组件创建完后获取数据，先获取token等
+    // 组件创建完后获取数据，先从App获取token等
     this.num = parseInt(this.$route.params.num.toString()) || 1;
     this.getMsg();
     this.getAppData();
-
+    // 如果本地mock数据，把下面的两行代码开启，上面的两行进行注释即可。
     // let res = {"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5Mjk3MzExfQ.ou2kwcf9hdARATIJn75jfX-rtJFih02FV3QKAvHIC0M","id":1251131102261739521,"courseId":1240774211639824386};
     // this.data2Storage(res);
   },
@@ -214,7 +211,7 @@ export default {
             sectionId: this.sectionId || "",
             paperId: this.data.paperId || "",
             questionId: this.data.questionVo.id || "",
-            imgUrl: ""
+            imgUrl: this.imgUrl || ""
           },
           "POST"
         ).then(res => {

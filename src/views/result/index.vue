@@ -63,7 +63,7 @@ export default {
     Title
   },
   created() {
-    // 组件创建完后获取数据，query的sectionId & paperId
+    // 组件创建完后获取数据，query的 courseId & paperId
     this.courseId = this.$route.query.courseId.toString();
     this.paperId = this.$route.query.paperId.toString();
     this.fetchData();
