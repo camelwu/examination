@@ -25,9 +25,9 @@
       v-show="mode=='explain'">
       <Title title="试题解析" />
       <Paper
-        :type="data.questionVo.actType" 
-        :answer="data.questionVo.answer" 
-        :reply="userAnswer" 
+        :type="data.questionVo.baseType"
+        :answer="data.questionVo.answer"
+        :reply="userAnswer"
         :answerKey="data.questionVo.answerKey" />
     </div>
     <Footer 
@@ -75,18 +75,18 @@ export default {
   },
   created() {
     // 组件创建完后获取数据，先获取token等
-    // let res = {
-    //   token:
-    //     "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5MjQ3NTkzfQ.2FAuaojMUKrfE0NBL3KIbOR4EL8J59g6LEHRCizKo_I",
-    //   id: "1255265419959226369"
-    // };
-    // const { token, id } = res;
-    // localStorage.setItem("token", token);
-    // this.sectionId = id;
-    this.getMsg();
-    this.getAppData();
-
     this.num = parseInt(this.$route.params.num.toString()) || 1;
+    // this.getMsg();
+    // this.getAppData();
+
+    let res = {
+      token:
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5MjQ3NTkzfQ.2FAuaojMUKrfE0NBL3KIbOR4EL8J59g6LEHRCizKo_I",
+      id: "1255265419959226369"
+    };
+    const { token, id } = res;
+    localStorage.setItem("token", token);
+    this.sectionId = id;
     this.fetchData();
   },
   mounted() {},
@@ -132,27 +132,21 @@ export default {
     // js调app
     getMsg() {
       let msg = { action: "getMsg" };
-      this.$jsbridge.callNative("dataFromApp", msg, res => {
-        alert("jsbridge获取app响应数据:" + res);
-        res = res || {
-          token:
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg4Nzc5NzkwfQ.sTzIT68AOD-NF1IZEEdoSKEiOkOoZLb33xmvcMSssNI",
-          id: 1251154388504838146
-        };
+      this.$bridge.callHandler("dataFromApp", msg, res => {
         const { token, id } = res;
         localStorage.setItem("token", token);
         this.sectionId = id;
         this.fetchData();
       });
-      /*this.$bridge.callHandler("dataFromApp", msg, res => {
-        alert("bridge获取app响应数据:" + res);
-        this.test = res;
-      });*/
     },
     // app调js
     getAppData() {
       this.$bridge.registerHandler("dataToJs", (data, responseCallback) => {
-        alert("app主动调用js方法，传入数据:" + data);
+        // alert("app主动调用js方法，传入数据:" + data);
+        const { token, id } = data;
+        localStorage.setItem("token", token);
+        this.sectionId = id;
+        this.fetchData();
         responseCallback(data);
       });
     },
@@ -201,9 +195,8 @@ export default {
           let result = res.result;
           this.data = result;
           this.total = result.count;
-          console.log(this.data);
         } else {
-          alert(res.message);
+          this.error = res.message;
         }
       });
     },
@@ -231,7 +224,7 @@ export default {
           if (res.code == "200" && res.success) {
             this.$router.push("/exam/" + curNum);
           } else {
-            alert("Sth error, pls try it again!");
+            this.error = "提交答案失败，"+ res.message;
           }
         });
       } else {

@@ -10,10 +10,8 @@
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
     <div v-if="data" class="result-list">
-      <!-- class="result-item" -->
       <div v-for="(res, index) in data" :key="'result'+index" class="result-circle" :style="'background-color:'+getColor(res.result)">{{index+1}}</div>
     </div>
-    <!-- </div> -->
     <Footer
       :total="total"
       mode="result"
@@ -71,6 +69,11 @@ export default {
     this.fetchData();
   },
   methods: {
+    backApp() {
+      this.$bridge.callHandler("backApp", { action: "backLearnView" }, function(res) {
+         this.error = "结果：" + res;
+      });
+    },
     getColor(result) {
       if (result < 0 || result > 3) {
         return "#fff";
@@ -78,11 +81,6 @@ export default {
       return this.types.filter(item => {
         return item.result == result;
       })[0].color;
-    },
-    backApp() {
-      this.$bridge.callHandler("backApp", { action: "backLearnView" }, function() {
-        console.log("结果：" + res);
-      });
     },
     fetchData() {
       this.error = this.data = null;
@@ -96,9 +94,8 @@ export default {
           let result = res.result;
           this.total = result.totalNum;
           this.data = result.lstQuestionResult;
-          console.log(this.data);
         } else {
-          this.error =res.message;
+          this.error = res.message;
         }
       });
     },
@@ -109,7 +106,7 @@ export default {
         if (res.code == "200" && res.success) {
           this.$router.push("/exam/1");
         } else {
-          alert("Sth error, pls try it again!");
+          this.error = "重新练习接口错误，请再试一次！";
         }
       });
     }
