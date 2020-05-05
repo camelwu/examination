@@ -6,6 +6,9 @@ import 'lib-flexible/flexible'
 import 'normalize.css/normalize.css'
 import './assets/global.css'
 import Bridge from './plugins/bridge'
+import VConsole from  'vconsole';
+let vConsole = new VConsole();
+console.log("test");
 
 Vue.config.productionTip = false
 Vue.prototype.$bridge = Bridge
