@@ -4698,11 +4698,6 @@ js-message@1.0.5:
   resolved "https://registry.yarnpkg.com/js-message/-/js-message-1.0.5.tgz#2300d24b1af08e89dd095bc1a4c9c9cfcb892d15"
   integrity sha1-IwDSSxrwjondCVvBpMnJz8uJLRU=
 
-js-native-bridge@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/js-native-bridge/-/js-native-bridge-1.0.3.tgz#101dc5d914cba3d7e3265f859f2b8eef3a3c53ec"
-  integrity sha512-96nxfAsWWNOOpsmchZFt2IE0o9IeWxkzk5NAVUmycRRl28JBMcYSrAVGo2R5hCKY1BKYHl2SccguaoQxlRL/DQ==
-
 js-queue@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/js-queue/-/js-queue-2.0.0.tgz#362213cf860f468f0125fc6c96abc1742531f948"
