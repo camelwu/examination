@@ -3,7 +3,7 @@
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="error" class="error">{{ error }}</div>
     <div v-if="data" class="question">
-      <article v-html="data.questionVo.context">{{ data.questionVo.context }}</article>
+      <article v-show="data.questionVo.context" v-html="data.questionVo.context">{{ data.questionVo.context }}</article>
       <Title 
       :num="num" 
       :total="total" 
@@ -13,10 +13,12 @@
     <Answer
       v-if="data"
       :mode="mode"
-      :typeTitle="data.questionVo.actType"
-      :items="data.questionVo.questionItem"
+      :baseType="data.questionVo.baseType"
+      :items="JSON.parse(data.questionVo.questionItem)"
+      :answered="data.answer"
+      :userAnswer="userAnswer"
       :answer="data.questionVo.answer"
-      @parentAnswer="parentAnswer"
+      @parentFill="fillAnswer"
       @clickUploadImg="clickUploadImg" />
     <div
       v-if="data"
@@ -25,10 +27,16 @@
       <Paper
         :type="data.questionVo.actType" 
         :answer="data.questionVo.answer" 
-        :reply="userAnswer.answer" 
+        :reply="userAnswer" 
         :answerKey="data.questionVo.answerKey" />
     </div>
-    <Footer :num="num" :total="total" :path="mode" />
+    <Footer 
+      :num="num"
+      :total="total"
+      :mode="mode"
+      @parentRouter="routerChang"
+      @parentAnswer="submitAnswer"
+      @parentReset="resetAnswer" />
   </div>
 </template>
 
@@ -44,36 +52,15 @@ import fetch from "@/plugins/fetch";
 export default {
   data() {
     return {
-      // path: 'exam',
       num: 0,
       total: 0,
-      sectionId: 0,
+      courseId: "",
+      sectionId: "",
+      imgUrl: "",
       loading: false,
       error: null,
       data: null,
-      dataTitle: [
-        { id: 1, title: "A.所有的直线都有斜率", isdisable: false },
-        {
-          id: 2,
-          title: "B.倾斜角α的范围与三角形的内角范围一致",
-          isdisable: false
-        },
-        { id: 3, title: "C.所有的直线都有倾斜角", isdisable: false },
-        {
-          id: 4,
-          title: "D.直线的斜率k与倾斜角α满足关系式k·Cotα＝1",
-          isdisable: false
-        }
-      ],
-      userAnswer: {
-        // 答题
-        answer: [],
-        courseId: "",
-        imgUrl: "",
-        paperId: "",
-        questionId: "",
-        sectionId: ""
-      },
+      userAnswer: [],
       mode: "exam"
     };
   },
@@ -87,37 +74,80 @@ export default {
     Answer
   },
   created() {
-    console.log("bridge:", this.$bridge);
     // 组件创建完后获取数据，先获取token等
-    this.getMsg();this.getAppData();
+    // let res = {
+    //   token:
+    //     "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5MjQ3NTkzfQ.2FAuaojMUKrfE0NBL3KIbOR4EL8J59g6LEHRCizKo_I",
+    //   id: "1255265419959226369"
+    // };
+    // const { token, id } = res;
+    // localStorage.setItem("token", token);
+    // this.sectionId = id;
+    this.getMsg();
+    this.getAppData();
 
     this.num = parseInt(this.$route.params.num.toString()) || 1;
     this.fetchData();
   },
+  mounted() {},
   watch: {
     // 如果路由有变化，会再次执行该方法
     // $route: "fetchData"
     $route(to, from) {
+      this.userAnswer = [];
       this.mode = to.name;
-      if (to.params.num !== from.params.num) {
-        this.num = to.params.num;
-        this.fetchData();
+      if (to.params.num != from.params.num) {
+        let goNum = parseInt(to.params.num.toString());
+        if (goNum < this.total || this.total == 0) {
+          this.num = goNum;
+          this.fetchData();
+        } else {
+          window.location.href =
+            "/result?courseId=" +
+            this.courseId +
+            "&paperId=" +
+            this.data.paperId;
+          return false;
+        }
       }
-      // console.log(to.path, from);
+      console.log(to.path, from);
     }
   },
+  // beforeRouteEnter(to, from, next) {
+  //   // 在渲染该组件的对应路由被 confirm 前调用
+  //   // 不！能！获取组件实例 `this`
+  //   // 因为当钩子执行前，组件实例还没被创建
+  // },
+  // beforeRouteUpdate(to, from, next) {
+  //   // 在当前路由改变，但是该组件被复用时调用
+  //   // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，
+  //   // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+  //   // 可以访问组件实例 `this`
+  // },
+  // beforeRouteLeave(to, from, next) {
+  //   // 导航离开该组件的对应路由时调用
+  //   // 可以访问组件实例 `this`
+  // },
   methods: {
     // js调app
     getMsg() {
       let msg = { action: "getMsg" };
-      this.$jsbridge.callNative("dataFromApp", msg, (res) => {
+      this.$jsbridge.callNative("dataFromApp", msg, res => {
         alert("jsbridge获取app响应数据:" + res);
-        // this.test = res;
-      })
-      this.$bridge.callHandler("dataFromApp", msg, (res) => {
+        res = res || {
+          token:
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg4Nzc5NzkwfQ.sTzIT68AOD-NF1IZEEdoSKEiOkOoZLb33xmvcMSssNI",
+          id: 1251154388504838146
+        };
+        const { token, id } = res;
+        localStorage.setItem("token", token);
+        this.sectionId = id;
+        this.fetchData();
+      });
+      /*this.$bridge.callHandler("dataFromApp", msg, res => {
         alert("bridge获取app响应数据:" + res);
         this.test = res;
-      });
+      });*/
     },
     // app调js
     getAppData() {
@@ -142,69 +172,86 @@ export default {
       this.imageData.push(data.path);
       this.imageName.push(data.name);
     },
-    parentAnswer(title) {
-      const list = title || [];
-      if (list.length === 1) {
-        //单选
-        this.singlt(list);
-      } else {
-        //多选
-        this.double(list);
-      }
-    },
-    singlt(list) {
-      this.dataTitle.map((item, index) => {
-        if (item.id === list[0].id) {
-          this.dataTitle[index].isdisable = true;
+    fillAnswer(sel) {
+      const baseType = this.data.questionVo.baseType;
+      if (baseType) {
+        if (baseType === "2") {
+          //复选
+          let index = this.doubleList.indexOf(sel);
+          if (index > -1) {
+            this.userAnswer.splice(index, 1);
+          } else {
+            this.userAnswer.push(item);
+          }
         } else {
-          this.dataTitle[index].isdisable = false;
+          //单选，判断，填空，主观
+          this.userAnswer = [sel];
         }
-      });
-    },
-    double(list) {
-      const doubleId = [];
-      list.map(item => {
-        if (doubleId.id !== item.id) {
-          doubleId.push(item.id);
-        }
-      });
-      console.log("doubleId", doubleId);
+      }
     },
     fetchData() {
       this.error = this.data = null;
       this.loading = true;
       fetch("api/paper/getPaperInfo", {
         num: this.num || 1,
-        sectionId: ""
+        sectionId: this.sectionId
       }).then(res => {
         this.loading = false;
-        if (res.code == "0" && res.success) {
+        if (res.code == "200" && res.success) {
           let result = res.result;
           this.data = result;
           this.total = result.count;
           console.log(this.data);
         } else {
           alert(res.message);
-          // let result = {
-          //   answer: "",
-          //   count: 0,
-          //   curNum: 0,
-          //   imgUrl: "",
-          //   paperId: "",
-          //   questionVo: {
-          //     actType: "",
-          //     actTypeName: "",
-          //     answer: "",
-          //     answerKey: "",
-          //     baseType: "",
-          //     context: `In winter the weather in England is often very cold. In spring and autumn there are sometimes cold days, but there are also days when the weather is warm. The weather is usually warm in summer. It is sometimes hot in summer, but it is not often very hot. There are often cool days in summer.When the temperature is over 27℃, English people say it is hot. When the temperature is about 21℃, they say it is warm.In the north of Europe it is very cold in winter. In the south of Europe the summer is often very hot. In the south of Spain(1) and in North Africa(2) the summer is always hot.Water freezes(3) at 0℃. When water freezes, it changes from a liquid(4) into ice. Water boils(5) at 100℃. When water boils, it changes from a liquid into steam(6).Notes: (1)Spain/speIn/n. 西班牙(2)Africa/'frIk/n.非洲 (3)freeze/fri：z/v.结冰(4)liquid/'lIkwId/n.液体 (5)boil/bIl/v.沸腾;(水)开 (6)steam/sti：m/ n.蒸汽 tionVo`,
-          //     id: "",
-          //     question: "1.What is the weather like in summer in England?",
-          //     questionItem: ""
-          //   }
-          // };
-          // this.data = result;
-          // this.total = result.count;
+        }
+      });
+    },
+    routerChang() {
+      this.$router.push();
+    },
+    submitAnswer() {
+      let curNum = this.num + 1;
+      if (curNum <= this.total) {
+        // 都需要先提交问题才能，下一题。最后一题相同
+        fetch(
+          "api/paper/answer",
+          {
+            answer: this.userAnswer || [],
+            courseId: this.courseId || "",
+            sectionId: this.sectionId || "",
+            paperId: this.data.paperId || "",
+            questionId: this.data.questionVo.id || "",
+            imgUrl: ""
+          },
+          "POST"
+        ).then(res => {
+          this.userAnswer = [];
+          // 答案复位
+          if (res.code == "200" && res.success) {
+            this.$router.push("/exam/" + curNum);
+          } else {
+            alert("Sth error, pls try it again!");
+          }
+        });
+      } else {
+        this.$router.push(
+          "/result?courseId=" + this.courseId + "&paperId=" + this.data.paperId
+        );
+      }
+    },
+    resetAnswer() {
+      fetch(
+        "api/paper/resetAnswer",
+        {
+          paperId: this.data.paperId || ""
+        },
+        "POST"
+      ).then(res => {
+        if (res.code == "200" && res.success) {
+          this.$router.push("/exam/1");
+        } else {
+          alert("Sth error, pls try it again!");
         }
       });
     }

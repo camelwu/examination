@@ -1,18 +1,18 @@
 <template>
   <footer>
-    <router-link v-if="path==='exam'" :to="{path:'/explain/'+num}" class="links">
+    <router-link v-show="mode==='exam'" :to="{path:'/explain/'+num}" class="links">
       <div class="btn_red">解析</div>
     </router-link>
-    <router-link v-if="path==='exam'&&num>1" v-show="num>1" :to="{path:'/exam/'+(num-1)}" class="links">
+    <router-link v-show="mode==='exam'&&num>1" :to="{path:'/exam/'+(num-1)}" class="links">
       <div class="btn_gray">上一题</div>
     </router-link>
-    <router-link v-if="path!=='result'" :to="{path:'/'+path+'/'+(num+1)}" class="link_next">
-      <div class="btn_blue">下一题</div>
-    </router-link>
-    <div v-if="path==='result'" class="link_next">
+    <div v-show="mode!=='result'" @click="nextStep" class="link_next">
+      <div class="btn_blue"><span v-if="num<total">下一题</span><span v-else>查看结果</span></div>
+    </div>
+    <div v-if="mode==='result'" @click="practiceAgain" class="link_next">
       <div class="btn_gray">重新练习</div>
     </div>
-    <div v-if="path==='result'" to="/user" class="link_next">
+    <div v-if="mode==='result'" @click="backToApp" class="link_next">
       <div class="btn_blue">返回</div>
     </div>
   </footer>
@@ -27,26 +27,20 @@ export default {
   props: {
     num: { type: Number, default: 1 },
     total: Number,
-    path: String
+    mode: String
   },
   methods: {
-    router_c: function(active) {
-      alert(active);
+    nextStep() {
+      this.$emit("parentAnswer");
     },
-    resetAnswer() {
-      fetch("api/paper/resetAnswer", {
-        paperId: ""
-      }).then(res => {
-        if (res.code == "0" && res.success) {
-          this.$router.push();
-        } else {
-          alert("Sth error, pls try it again!");
-        }
-      });
+    practiceAgain() {
+      this.$emit("parentReset");
+    },
+    backToApp() {
+      this.$emit("parentBack");
     }
   },
-  created() {
-  }
+  created() {}
 };
 </script>
 

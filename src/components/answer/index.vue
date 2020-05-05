@@ -1,14 +1,16 @@
 <template>
   <div class="answer">
     <ul class="answer-list">
-      <li :class="item.isdisable ? 'active' : ''" v-for="item in items" :key="item.id+'col'" @click="seleted(item)">
-        <span>{{item.title}}</span>
+      <li v-for="(item, index) in items" :key="'col' + index" @click="reply(item.itemLabel)" :class="isActive(item.itemLabel, index) ? 'active' : ''">
+        <span>{{item.itemLabel + '.' + item.itemContent}}</span>
       </li>
     </ul>
-    <textarea class="inputs" placeholder="请输入答案"></textarea>
-    <div class="uploads" @click="upload">
-      <img class="camera" :src="imgUrl">
-      <p>上传答案</p>
+    <div v-show="baseType=='4'||baseType=='5'">
+      <textarea class="inputs" placeholder="请输入答案"></textarea>
+      <div class="uploads" @click="upload">
+        <img class="camera" :src="imgUrl">
+        <p>上传答案</p>
+      </div>
     </div>
   </div>
 </template>
@@ -16,38 +18,33 @@
 <script>
 export default {
   props: {
+    answered: String,
+    mode: String,
     items: Array,
-    typeTitle: String
+    userAnswer: Array,
+    baseType: String
   },
   data() {
     return {
-      sel: [],
-      active: 2,
-      activeSingle: 0,
-      doubleList:[],
+      doubleList: [],
       imgUrl: require("@/assets/camera.png")
     };
   },
   name: "answerlist",
+  created() {},
   methods: {
-    seleted(item) {
-      if(this.typeTitle && this.typeTitle === 'single'){
-        this.$emit('parentAnswer', [item])
-      }
-      if(this.typeTitle && this.typeTitle === 'double') {
-        const doubleList = this.doubleChange(item)
-        this.$emit('parentAnswer', doubleList)
+    reply(item) {
+      this.$emit("parentFill", item);
+    },
+    isActive(sel, index) {
+      if (this.baseType && (this.baseType === "1" || this.baseType === "2")) {
+        let bo = this.userAnswer.indexOf(sel);
+        return bo > -1;
       }
     },
-    doubleChange(item) {
-      this.doubleList.push(item)
-    },
-    upload(){
-      this.$emit('clickUploadImg')
+    upload() {
+      this.$emit("clickUploadImg");
     }
-  },
-  created() {
-    console.log('props',this.typeTitle)
   }
 };
 </script>

@@ -13,7 +13,9 @@ a {
     text-decoration: none;
 }
 
+article,
 div,
+section,
 span,
 text,
 view {
@@ -157,35 +159,40 @@ view {
 
 .question article {
     text-align: left;
-    height: 595px;
+    max-height: 595px;
     overflow-y: scroll;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.19), rgba(0, 0, 0, 0));
     padding: 20px;
+}
+
+.answer{
+    display: block;
+    margin-top: 65px;
 }
 
 .answer-list {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    height: 54px;
 }
 
 .answer-list li {
+    box-sizing: border-box;
     list-style: none;
     height: 110px;
     background: rgba(245, 245, 245, 1);
     border-radius: 10px;
     display: block;
     line-height: 110px;
-    padding: 48px;
+    padding: 0 40px;
     text-align: left;
+    margin-bottom: 20px;
 }
 
 .answer-list li.active {
     color: #1E9DF5;
     background: rgba(232, 245, 254, 1);
     border: 1PX solid rgba(30, 157, 245, 1);
-    /*no*/
 }
 
 .answer .inputs {

@@ -14,7 +14,11 @@
       <div v-for="(res, index) in data" :key="'result'+index" class="result-circle" :style="'background-color:'+getColor(res.result)">{{index+1}}</div>
     </div>
     <!-- </div> -->
-    <Footer :num="num" :total="total" path="result" />
+    <Footer
+      :total="total"
+      mode="result"
+      @parentBack="backApp"
+      @parentReset="resetAnswer" />
   </div>
 </template>
 
@@ -61,10 +65,9 @@ export default {
     Title
   },
   created() {
-    // 组件创建完后获取数据，
-    this.num = this.$route.params.num || 1;
-    console.log(this.num);
-    console.log(this.$route);
+    // 组件创建完后获取数据，query的sectionId & paperId
+    this.courseId = this.$route.query.courseId.toString();
+    this.paperId = this.$route.query.paperId.toString();
     this.fetchData();
   },
   methods: {
@@ -76,108 +79,35 @@ export default {
         return item.result == result;
       })[0].color;
     },
-    onClickCart() {
-      this.$router.push("cart");
+    backApp() {
+      this.$bridge.callHandler("backApp", { action: "backLearnView" }, function() {
+        console.log("结果：" + res);
+      });
     },
     fetchData() {
       this.error = this.data = null;
       this.loading = true;
       fetch("api/paper/getPaperAllResult", {
-        courseId: "get",
-        paperId: ""
+        courseId: this.courseId || "",
+        paperId: "" || this.paperId
       }).then(res => {
         this.loading = false;
-        if (res.code == "0" && res.success) {
+        if (res.code == "200" && res.success) {
           let result = res.result;
+          this.total = result.totalNum;
           this.data = result.lstQuestionResult;
-          // console.log(this.data);
+          console.log(this.data);
         } else {
-          // alert(res.message);
-          let result = {
-            lstQuestionResult: [
-              {
-                paperId: "",
-                questionId: "",
-                result: 1
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 2
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 1
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 3
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 1
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 2
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 1
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 3
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              },
-              {
-                paperId: "",
-                questionId: "",
-                result: 0
-              }
-            ],
-            totalNum: 0
-          };
-          this.data = result.lstQuestionResult;
+          this.error =res.message;
         }
       });
     },
     resetAnswer() {
       fetch("api/paper/resetAnswer", {
-        paperId: ""
-      }).then(res => {
-        if (res.code == "0" && res.success) {
-          this.$router.push('/exam/1');
+        paperId: this.paperId
+      }, 'POST').then(res => {
+        if (res.code == "200" && res.success) {
+          this.$router.push("/exam/1");
         } else {
           alert("Sth error, pls try it again!");
         }
