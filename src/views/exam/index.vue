@@ -34,7 +34,6 @@
       :num="num"
       :total="total"
       :mode="mode"
-      @parentRouter="routerChang"
       @parentAnswer="submitAnswer"
       @parentReset="resetAnswer" />
   </div>
@@ -76,10 +75,10 @@ export default {
   created() {
     // 组件创建完后获取数据，先获取token等
     this.num = parseInt(this.$route.params.num.toString()) || 1;
-    // this.getMsg();
-    // this.getAppData();
+    this.getMsg();
+    this.getAppData();
 
-    let res = {
+    /*let res = {
       token:
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5MjQ3NTkzfQ.2FAuaojMUKrfE0NBL3KIbOR4EL8J59g6LEHRCizKo_I",
       id: "1255265419959226369"
@@ -87,7 +86,7 @@ export default {
     const { token, id } = res;
     localStorage.setItem("token", token);
     this.sectionId = id;
-    this.fetchData();
+    this.fetchData();*/
   },
   mounted() {},
   watch: {
@@ -132,27 +131,34 @@ export default {
     // js调app
     getMsg() {
       let msg = { action: "getMsg" };
+      this.$jsbridge.callNative("jsFromApp", msg, (res) => {
+        console.log("jsFromApp, 传入数据:" + res);
+        this.data2Storage(res);
+      })
       this.$bridge.callHandler("dataFromApp", msg, res => {
-        const { token, id } = res;
-        localStorage.setItem("token", token);
-        this.sectionId = id;
-        this.fetchData();
+        console.log("dataFromApp, 传入数据:" + res);
+        this.data2Storage(res);
       });
     },
     // app调js
     getAppData() {
-      this.$bridge.registerHandler("dataToJs", (data, responseCallback) => {
-        // alert("app主动调用js方法，传入数据:" + data);
-        const { token, id } = data;
-        localStorage.setItem("token", token);
-        this.sectionId = id;
-        this.fetchData();
-        responseCallback(data);
+      const func = this.data2Storage;
+      this.$bridge.registerHandler("dataToJs", (data, fuc) => {
+        console.log("app主动调用js方法, 传入数据:" + data);
+        fuc(data);
       });
+    },
+    data2Storage(data) {
+      const { token, id, courseId } = data;
+      localStorage.setItem("token", token);
+      this.sectionId = id;
+      this.courseId = courseId;
+      this.fetchData();
     },
     clickUploadImg() {
       let that = this;
-      WebViewJavascriptBridge.callHandler(
+      // WebViewJavascriptBridge
+      this.$bridge.callHandler(
         "uploadImgAlbumSelect",
         { name: "选择图片" },
         function(data) {
@@ -184,6 +190,7 @@ export default {
       }
     },
     fetchData() {
+      console.log("Begin fetch data from api.");
       this.error = this.data = null;
       this.loading = true;
       fetch("api/paper/getPaperInfo", {
@@ -196,12 +203,10 @@ export default {
           this.data = result;
           this.total = result.count;
         } else {
+          console.log("fetchData error: " + data);
           this.error = res.message;
         }
       });
-    },
-    routerChang() {
-      this.$router.push();
     },
     submitAnswer() {
       let curNum = this.num + 1;
