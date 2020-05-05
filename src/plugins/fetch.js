@@ -2,7 +2,7 @@ import { baseUrl } from './env'
 export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
     type = type.toUpperCase();
     url = baseUrl + url;
-
+    let token = localStorage.getItem('token');
     // 此处规定get请求的参数使用时放在data中，如同post请求
     if (type == 'GET') {
         let dataStr = '';
@@ -15,7 +15,6 @@ export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
             url = url + '?' + dataStr;
         }
     }
-
     // 对于支持fetch方法的浏览器，处理如下：X-Access-Token
     if (window.fetch && method == 'fetch') {
         let requestConfig = {
@@ -25,7 +24,7 @@ export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAxMjQ1OTQzIiwiZXhwIjoxNTg4OTI4ODMwfQ.QzceqxZ3vp2ORsmimgJ8bVmitK1j3w5dq6InEePvxBE'
+                'x-access-token': token
             },
             mode: "cors", // 以CORS的形式跨域
             cache: "force-cache"
@@ -60,6 +59,7 @@ export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
 
             requestObj.open(type, url, true);
             requestObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            requestObj.setRequestHeader("x-access-token", token);
             requestObj.send(sendData);
 
             requestObj.onreadystatechange = () => {
