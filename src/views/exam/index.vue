@@ -78,15 +78,8 @@ export default {
     this.getMsg();
     this.getAppData();
 
-    /*let res = {
-      token:
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5MjQ3NTkzfQ.2FAuaojMUKrfE0NBL3KIbOR4EL8J59g6LEHRCizKo_I",
-      id: "1255265419959226369"
-    };
-    const { token, id } = res;
-    localStorage.setItem("token", token);
-    this.sectionId = id;
-    this.fetchData();*/
+    // let res = {"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5Mjk3MzExfQ.ou2kwcf9hdARATIJn75jfX-rtJFih02FV3QKAvHIC0M","id":1251131102261739521,"courseId":1240774211639824386};
+    // this.data2Storage(res);
   },
   mounted() {},
   watch: {
@@ -131,10 +124,6 @@ export default {
     // js调app
     getMsg() {
       let msg = { action: "getMsg" };
-      this.$jsbridge.callNative("jsFromApp", msg, (res) => {
-        console.log("jsFromApp, 传入数据:" + res);
-        this.data2Storage(res);
-      })
       this.$bridge.callHandler("dataFromApp", msg, res => {
         console.log("dataFromApp, 传入数据:" + res);
         this.data2Storage(res);
@@ -142,13 +131,18 @@ export default {
     },
     // app调js
     getAppData() {
-      const func = this.data2Storage;
-      this.$bridge.registerHandler("dataToJs", (data, fuc) => {
+      this.$bridge.registerHandler("dataToJs", (data, responseCallback) => {
         console.log("app主动调用js方法, 传入数据:" + data);
-        fuc(data);
+        try {
+          this.data2Storage(data);
+        } catch (e) {
+          console.log(e);
+        }
+        responseCallback(data);
       });
     },
     data2Storage(data) {
+      console.log("处理传入数据:"+data);
       const { token, id, courseId } = data;
       localStorage.setItem("token", token);
       this.sectionId = id;
@@ -160,7 +154,7 @@ export default {
       // WebViewJavascriptBridge
       this.$bridge.callHandler(
         "uploadImgAlbumSelect",
-        { name: "选择图片" },
+        { action: "photo" },
         function(data) {
           that.getAppUpImage(data);
         }
@@ -168,9 +162,9 @@ export default {
     },
     getAppUpImage(url) {
       let data = JSON.parse(url);
-      //this.$vux.alert.show({title:'提示',content:data});
-      this.imageData.push(data.path);
-      this.imageName.push(data.name);
+      console.log({data});
+      this.imgUrl = data.path;
+      this.imgName = data.name;
     },
     fillAnswer(sel) {
       const baseType = this.data.questionVo.baseType;
@@ -229,7 +223,7 @@ export default {
           if (res.code == "200" && res.success) {
             this.$router.push("/exam/" + curNum);
           } else {
-            this.error = "提交答案失败，"+ res.message;
+            this.error = "提交答案失败，" + res.message;
           }
         });
       } else {
