@@ -49,7 +49,7 @@ export default {
       }
     },
     isActive(sel, index) {
-      if (this.baseType && (this.baseType === "1" || this.baseType === "2")) {
+      if (this.baseType === "1" || this.baseType === "2" || this.baseType === "3" ) {
         if (this.mode == "exam") {
           let bo = this.userAnswer.indexOf(sel);
           return bo > -1;
@@ -60,7 +60,7 @@ export default {
       }
     },
     isAnswer(sel, index) {
-      if (this.baseType && (this.baseType === "1" || this.baseType === "2")) {
+      if (this.baseType === "1" || this.baseType === "2" || this.baseType === "3" ) {      
         if (this.mode !== "exam") {
           let bo = this.data.indexOf(sel);
           let b1 = this.correct.indexOf(sel);
