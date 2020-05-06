@@ -27,7 +27,7 @@
       <Paper
         :type="data.questionVo.baseType"
         :answer="data.questionVo.answer"
-        :reply="userAnswer"
+        :reply="data.answer"
         :answerKey="data.questionVo.answerKey" />
     </div>
     <Footer 
@@ -71,12 +71,21 @@ export default {
   },
   created() {
     // 组件创建完后获取数据，先从App获取token等
+    this.mode = this.$route.params.mode || this.mode;
     this.num = parseInt(this.$route.params.num.toString()) || 1;
-    this.getMsg();
-    this.getAppData();
-    // 如果本地mock数据，把下面的两行代码开启，上面的两行进行注释即可。
-    // let res = {"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5Mjk3MzExfQ.ou2kwcf9hdARATIJn75jfX-rtJFih02FV3QKAvHIC0M","id":1251131102261739521,"courseId":1240774211639824386};
-    // this.data2Storage(res);
+    // this.getMsg();
+    // 如果本地mock数据，把下面的两行代码开启，上面的进行注释即可。
+    let res = {
+      token:
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5Mjk3MzExfQ.ou2kwcf9hdARATIJn75jfX-rtJFih02FV3QKAvHIC0M",
+      id: "1251131102261739521",
+      courseId: "1240774211639824386"
+    };
+    if (typeof res === "string") {
+      this.data2Storage(JSON.parse(res));
+    } else {
+      this.data2Storage(res);
+    }
   },
   mounted() {},
   watch: {
@@ -84,7 +93,7 @@ export default {
     // $route: "fetchData"
     $route(to, from) {
       this.userAnswer = [];
-      this.mode = to.name;
+      this.mode = to.params.mode;
       if (to.params.num != from.params.num) {
         let goNum = parseInt(to.params.num.toString());
         if (goNum < this.total || this.total == 0) {
@@ -123,27 +132,34 @@ export default {
       let msg = { action: "getMsg" };
       this.$bridge.callHandler("dataFromApp", msg, res => {
         console.log("dataFromApp, 传入数据:" + res);
-        this.data2Storage(res);
+        if (typeof res === "string") {
+          this.data2Storage(JSON.parse(res));
+        } else {
+          this.data2Storage(res);
+        }
       });
     },
     // app调js
     getAppData() {
-      this.$bridge.registerHandler("dataToJs", (data, responseCallback) => {
-        console.log("app主动调用js方法, 传入数据:" + data);
+      this.$bridge.registerHandler("dataToJs", (res, responseCallback) => {
         try {
-          this.data2Storage(data);
+          if (typeof res === "string") {
+            this.data2Storage(JSON.parse(res));
+          } else {
+            this.data2Storage(res);
+          }
         } catch (e) {
           console.log(e);
         }
-        responseCallback(data);
+        responseCallback(res);
       });
     },
     data2Storage(data) {
-      console.log("处理传入数据:"+data);
+      console.table(data);
       const { token, id, courseId } = data;
       localStorage.setItem("token", token);
-      this.sectionId = id;
-      this.courseId = courseId;
+      this.sectionId = id.toString();
+      this.courseId = courseId.toString();
       this.fetchData();
     },
     clickUploadImg() {
@@ -159,7 +175,7 @@ export default {
     },
     getAppUpImage(url) {
       let data = JSON.parse(url);
-      console.log({data});
+      console.log({ data });
       this.imgUrl = data.path;
       this.imgName = data.name;
     },
@@ -187,42 +203,50 @@ export default {
       fetch("api/paper/getPaperInfo", {
         num: this.num || 1,
         sectionId: this.sectionId
-      }).then(res => {
-        this.loading = false;
-        if (res.code == "200" && res.success) {
-          let result = res.result;
-          this.data = result;
-          this.total = result.count;
-        } else {
-          console.log("fetchData error: " + data);
-          this.error = res.message;
-        }
-      });
+      })
+        .then(res => {
+          this.loading = false;
+          if (res.code == "200" && res.success) {
+            let result = res.result;
+            this.data = result;
+            this.total = result.count;
+          } else {
+            console.log("fetchData error: " + data);
+            this.error = res.message;
+          }
+        })
+        .catch(error => {
+          console.log("request failed", error);
+        });
     },
     submitAnswer() {
       let curNum = this.num + 1;
       if (curNum <= this.total) {
         // 都需要先提交问题才能，下一题。最后一题相同
-        fetch(
-          "api/paper/answer",
-          {
-            answer: this.userAnswer || [],
-            courseId: this.courseId || "",
-            sectionId: this.sectionId || "",
-            paperId: this.data.paperId || "",
-            questionId: this.data.questionVo.id || "",
-            imgUrl: this.imgUrl || ""
-          },
-          "POST"
-        ).then(res => {
-          this.userAnswer = [];
-          // 答案复位
-          if (res.code == "200" && res.success) {
-            this.$router.push("/exam/" + curNum);
-          } else {
-            this.error = "提交答案失败，" + res.message;
-          }
-        });
+        if (this.mode == "exam" && this.userAnswer) {
+          fetch(
+            "api/paper/answer",
+            {
+              answer: this.userAnswer,
+              courseId: this.courseId || "",
+              sectionId: this.sectionId || "",
+              paperId: this.data.paperId || "",
+              questionId: this.data.questionVo.id || "",
+              imgUrl: this.imgUrl || ""
+            },
+            "POST"
+          ).then(res => {
+            this.userAnswer = [];
+            // 答案复位
+            if (res.code == "200" && res.success) {
+              this.$router.push("/exam/" + curNum);
+            } else {
+              this.error = "提交答案失败，" + res.message;
+            }
+          });
+        } else {
+          this.$router.push("/" + this.mode + "/" + (this.num + 1));
+        }
       } else {
         this.$router.push(
           "/result?courseId=" + this.courseId + "&paperId=" + this.data.paperId

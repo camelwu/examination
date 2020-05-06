@@ -1,7 +1,12 @@
 <template>
   <div class="answer">
     <ul class="answer-list">
-      <li v-for="(item, index) in items" :key="'col' + index" @click="reply(item.itemLabel)" :class="isActive(item.itemLabel, index) ? 'active' : ''">
+      <li
+        v-for="(item, index) in items"
+        :key="'col' + index"
+        @click="reply(item.itemLabel)"
+        :class="{act:isAnswer(item.itemLabel, index), active:isActive(item.itemLabel, index)}"
+      >
         <span>{{item.itemLabel + '.' + item.itemContent}}</span>
       </li>
     </ul>
@@ -18,28 +23,50 @@
 <script>
 export default {
   props: {
-    answered: String,
+    answer: String,//API正确答案
+    answered: String,//API学员回答
     mode: String,
     items: Array,
-    userAnswer: Array,
+    userAnswer: Array,//作答
     baseType: String
   },
   data() {
     return {
-      doubleList: [],
+      data: [],
+      correct: [],
       imgUrl: require("@/assets/camera.png")
     };
   },
   name: "answerlist",
-  created() {},
+  created() {
+    this.data = JSON.parse(this.answered);
+    this.correct = JSON.parse(this.answer);
+  },
   methods: {
     reply(item) {
-      this.$emit("parentFill", item);
+      if (this.mode == "exam") {
+        this.$emit("parentFill", item);
+      }
     },
     isActive(sel, index) {
       if (this.baseType && (this.baseType === "1" || this.baseType === "2")) {
-        let bo = this.userAnswer.indexOf(sel);
-        return bo > -1;
+        if (this.mode == "exam") {
+          let bo = this.userAnswer.indexOf(sel);
+          return bo > -1;
+        } else {
+          let bo = this.correct.indexOf(sel);
+          return bo > -1;
+        }
+      }
+    },
+    isAnswer(sel, index) {
+      if (this.baseType && (this.baseType === "1" || this.baseType === "2")) {
+        if (this.mode !== "exam") {
+          let bo = this.data.indexOf(sel);
+          let b1 = this.correct.indexOf(sel);
+          return (bo > -1 && b1<0);
+        }
+        return false;
       }
     },
     upload() {

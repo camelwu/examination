@@ -1,11 +1,11 @@
 <template>
   <div class="explain">
-    <div v-show="parseInt(type)<4" class="seletor">
-      <ul>
-        <li>正确答案</li>
-        <li>我的答案</li>
+    <div v-show="parseInt(type)<4">
+      <ul class="selector">
+        <li class="th">正确答案</li>
+        <li class="th">我的答案</li>
         <li class="s">{{formatAnswer(answer)}}</li>
-        <li>{{formatAnswer(reply)}}</li>
+        <li class="r">{{formatAnswer(reply)}} </li>
       </ul>
     </div>
     <article v-html="answerKey">{{answerKey}}</article>
@@ -18,7 +18,7 @@ export default {
     type: String,
     answer: String,
     answerKey: String,
-    reply: Array
+    reply: String
   },
   data() {
     return {};
@@ -27,8 +27,7 @@ export default {
   methods: {
     formatAnswer(s) {
       if ("string" == typeof s) {
-        console.log(JSON.parse(this.answer).join(", "));
-        return JSON.parse(this.answer).join(", ");
+        return JSON.parse(s).join(", ");
       } else {
         return s.join(", ");
       }

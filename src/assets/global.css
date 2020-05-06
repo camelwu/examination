@@ -194,6 +194,11 @@ view {
     background: rgba(232, 245, 254, 1);
     border: 1PX solid rgba(30, 157, 245, 1);
 }
+.answer-list li.act {
+    color: #FF5656;
+    background:rgba(255,238,236,1);
+    border:1PX solid rgba(252,119,102,1);
+}
 
 .answer .inputs {
     width: 100%;
@@ -226,6 +231,36 @@ view {
 
 .uploads p {
     color: #999;
+}
+
+.selector {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1PX solid #DCDCDC;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+.selector .th {
+    background-color: #E5E5E5;
+}
+.selector .th:nth-child(1) {
+    border-right: 1PX solid #DCDCDC;
+}
+.selector .s {
+    color: #1E9DF5;
+    border-right: 1PX solid #DCDCDC;
+}
+.selector .r {
+    color: #FF5656;
+}
+.selector li {
+    list-style: none;
+    width: 50%;
+    height: 90px;
+    line-height: 90px;
+    box-sizing: border-box;
 }
 
 footer {
