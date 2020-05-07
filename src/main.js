@@ -8,7 +8,7 @@ import './assets/global.css'
 import Bridge from './plugins/bridge'
 import VConsole from  'vconsole';
 let vConsole = new VConsole();
-console.log("test");
+console.log("start test!");
 
 Vue.config.productionTip = false
 Vue.prototype.$bridge = Bridge

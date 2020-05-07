@@ -12,7 +12,8 @@
     </ul>
     <div v-show="baseType=='4'||baseType=='5'">
       <textarea class="inputs" placeholder="请输入答案"></textarea>
-      <div class="uploads" @click="upload">
+      <div v-if="img" class="upload-img"><img :src="img"></div>
+      <div v-else class="uploads" @click="upload">
         <img class="camera" :src="imgUrl">
         <p>上传答案</p>
       </div>
@@ -28,6 +29,7 @@ export default {
     mode: String,
     items: Array,
     userAnswer: Array,//作答
+    img: String,
     baseType: String
   },
   data() {

@@ -18,6 +18,7 @@
       :answered="data.answer"
       :userAnswer="userAnswer"
       :answer="data.questionVo.answer"
+      :img="imgUrl"
       @parentFill="fillAnswer"
       @clickUploadImg="clickUploadImg" />
     <div
@@ -54,7 +55,7 @@ export default {
       total: 0,
       courseId: "",
       sectionId: "",
-      imgUrl: "",
+      imgUrl: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1588875893817&di=ca214c036d1775e6c13c4ffac7bf2816&imgtype=0&src=http%3A%2F%2Fimg1.mukewang.com%2F5b178f140001c67d17201030.jpg",
       loading: false,
       error: null,
       data: null,
@@ -73,9 +74,10 @@ export default {
     // 组件创建完后获取数据，先从App获取token等
     this.mode = this.$route.params.mode || this.mode;
     this.num = parseInt(this.$route.params.num.toString()) || 1;
-    // this.getMsg();
+    this.getMsg();
+    this.getAppUpImage();
     // 如果本地mock数据，把下面的两行代码开启，上面的进行注释即可。
-    let res = {
+    /*let res = {
       token:
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwaG9uZSI6IjEzNTAyMTQ1OTQzIiwiZXhwIjoxNTg5Mjk3MzExfQ.ou2kwcf9hdARATIJn75jfX-rtJFih02FV3QKAvHIC0M",
       id: "1251131102261739521",
@@ -85,7 +87,7 @@ export default {
       this.data2Storage(JSON.parse(res));
     } else {
       this.data2Storage(res);
-    }
+    }*/
   },
   mounted() {},
   watch: {
@@ -111,27 +113,11 @@ export default {
       console.log(to.path, from);
     }
   },
-  // beforeRouteEnter(to, from, next) {
-  //   // 在渲染该组件的对应路由被 confirm 前调用
-  //   // 不！能！获取组件实例 `this`
-  //   // 因为当钩子执行前，组件实例还没被创建
-  // },
-  // beforeRouteUpdate(to, from, next) {
-  //   // 在当前路由改变，但是该组件被复用时调用
-  //   // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，
-  //   // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
-  //   // 可以访问组件实例 `this`
-  // },
-  // beforeRouteLeave(to, from, next) {
-  //   // 导航离开该组件的对应路由时调用
-  //   // 可以访问组件实例 `this`
-  // },
   methods: {
     // js调app
     getMsg() {
-      let msg = { action: "getMsg" };
-      this.$bridge.callHandler("dataFromApp", msg, res => {
-        console.log("dataFromApp, 传入数据:" + res);
+      this.$bridge.callHandler("dataFromApp", { action: "getMsg" }, res => {
+        // console.log("dataFromApp, 传入数据:" + res);
         if (typeof res === "string") {
           this.data2Storage(JSON.parse(res));
         } else {
@@ -139,14 +125,20 @@ export default {
         }
       });
     },
+    clickUploadImg() {
+      console.log('WebViewJavascriptBridge');
+      this.$bridge.callHandler("dataFromApp", { action: "photo" }, res => {
+        console.log(res);
+      });
+    },
     // app调js
-    getAppData() {
+    getAppUpImage() {
       this.$bridge.registerHandler("dataToJs", (res, responseCallback) => {
         try {
           if (typeof res === "string") {
-            this.data2Storage(JSON.parse(res));
+            this.imgUrl = res;
           } else {
-            this.data2Storage(res);
+            console.log("格式错误", res);
           }
         } catch (e) {
           console.log(e);
@@ -162,33 +154,16 @@ export default {
       this.courseId = courseId.toString();
       this.fetchData();
     },
-    clickUploadImg() {
-      let that = this;
-      // WebViewJavascriptBridge
-      this.$bridge.callHandler(
-        "uploadImgAlbumSelect",
-        { action: "photo" },
-        function(data) {
-          that.getAppUpImage(data);
-        }
-      );
-    },
-    getAppUpImage(url) {
-      let data = JSON.parse(url);
-      console.log({ data });
-      this.imgUrl = data.path;
-      this.imgName = data.name;
-    },
     fillAnswer(sel) {
       const baseType = this.data.questionVo.baseType;
       if (baseType) {
         if (baseType === "2") {
           //复选
-          let index = this.doubleList.indexOf(sel);
+          let index = this.userAnswer.indexOf(sel);
           if (index > -1) {
             this.userAnswer.splice(index, 1);
           } else {
-            this.userAnswer.push(item);
+            this.userAnswer.push(sel);
           }
         } else {
           //单选，判断，填空，主观

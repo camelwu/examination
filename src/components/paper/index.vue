@@ -26,6 +26,9 @@ export default {
   name: "paper",
   methods: {
     formatAnswer(s) {
+      if (!s && typeof s!="undefined" && s!=0){
+        return '';
+      }
       if ("string" == typeof s) {
         return JSON.parse(s).join(", ");
       } else {

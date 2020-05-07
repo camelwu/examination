@@ -211,7 +211,9 @@ view {
     /*no*/
     border-radius: 10px;
 }
-
+.upload-img img {
+    width: 100%;
+}
 .uploads {
     width: 250px;
     height: 250px;
