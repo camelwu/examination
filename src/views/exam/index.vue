@@ -212,6 +212,7 @@ export default {
             "POST"
           ).then(res => {
             this.userAnswer = [];
+            this.imgUrl = '';
             // 答案复位
             if (res.code == "200" && res.success) {
               this.$router.push("/exam/" + curNum);
