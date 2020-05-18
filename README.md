@@ -1,4 +1,15 @@
-# exam
+# 项目说明
+
+`normalize.css` 做兼容，`flexible` && `postcss-px2rem` 做移动端适配;  
+路由从`/`直接到`/exam/:num`，解析`explain/:num`，监听路由变化`@src/exam/index.vue`中`watch`； 最后结果为`/result?courseId&paperId`这种query方式；  
+
+打开spa后，由App直接调用`dataToJs`句柄，js接收App的句柄`dataFromApp`。vue中有：
+```
+getMsg // js唤起App方法，拿到数据
+getAppData // App唤起js方法
+clickUploadImg // 打开Native相册
+```
+
 ```
 ./
 ├── README.md
@@ -54,24 +65,6 @@ title  - 标题 （蓝色、总数、标题文字）
 ## 页面：  
 exam   - 题和解析 （文章, title, 题干, answer, paper, footer）  
 result - 答题结果 （title, 答案类型, 答案列表, footer） 
-
-## 思路：  
-`normalize.css` 做兼容，`flexible` && `postcss-px2rem` 做适配;  
-路由从`/`直接到`/exam/:num`，解析`explain/:num`，监听路由变化`@src/exam/index.vue`中`watch`； 最后结果为`/result?courseId&paperId`这种query方式；  
-
-打开spa后，由App直接调用`dataToJs`句柄，`@src/exam/index.vue`文件中`getAppData`方法。vue中有：
-```
-getMsg // js唤起App方法，拿到数据
-getAppData // App唤起js方法
-clickUploadImg // 打开Native相册
-```
-
-## 问题：  
-
-1. jsBridge方法可能有些问题，目前看到的是数据在API层面调不同，返回500，需要三方配合。
-2. clickUploadImg还没联调
-3. 上传图片对于前端（App + H5）如何操作？是否直接`@src/exam/index.vue`中的`submitAnswer`方法，把本地路径直接上传即可？
----
 
 ## 本地：  
 `@src/exam/index.vue`中的部分代码：  
