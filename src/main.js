@@ -6,8 +6,8 @@ import 'lib-flexible/flexible'
 import 'normalize.css/normalize.css'
 import './assets/global.css'
 import Bridge from './plugins/bridge'
-import VConsole from  'vconsole';
-let vConsole = new VConsole();
+// import VConsole from  'vconsole';
+// let vConsole = new VConsole();
 console.log("start test!");
 
 Vue.config.productionTip = false

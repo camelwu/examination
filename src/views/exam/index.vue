@@ -186,7 +186,7 @@ export default {
             this.data = result;
             this.total = result.count;
           } else {
-            console.log("fetchData error: " + data);
+            console.log("fetchData error: " + res);
             this.error = res.message;
           }
         })

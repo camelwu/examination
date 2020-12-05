@@ -50,7 +50,7 @@ export default {
         this.$emit("parentFill", item);
       }
     },
-    isActive(sel, index) {
+    isActive(sel) {
       if (this.baseType === "1" || this.baseType === "2" || this.baseType === "3" ) {
         if (this.mode == "exam") {
           let bo = this.userAnswer.indexOf(sel);
@@ -61,7 +61,7 @@ export default {
         }
       }
     },
-    isAnswer(sel, index) {
+    isAnswer(sel) {
       if (this.baseType === "1" || this.baseType === "2" || this.baseType === "3" ) {      
         if (this.mode !== "exam") {
           let bo = this.data.indexOf(sel);
